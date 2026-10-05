@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MateAventuras Offline - Acceso Docente</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* Estilos específicos para la tarjeta de Login Docente */
+        .login-box {
+            max-width: 450px;
+            margin: 3rem auto;
+            border-top: 5px solid var(--primary-blue);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            margin: 0.5rem 0 0.2rem 0;
+            color: #1a252f;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-size: 0.95rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1.1rem;
+        }
+
+        .info-offline-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid var(--primary-blue);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #0d47a1;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-navbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" width="45" height="48" alt="Logo" style="object-fit: contain;"/>
+            <h2 style="margin: 0; font-size: 1.2rem;">MateAventuras - RED Offline</h2>
+        </div>
+        <a href="index.html" class="btn-secondary" style="text-decoration: none; font-size: 0.9rem;">
+            ⬅ Volver al Inicio
+        </a>
+    </header>
+
+    <main class="main-wrapper">
+        
+        <div class="glass-card login-box">
+            
+            <div class="login-header">
+                <span style="font-size: 3rem;">👨‍🏫</span>
+                <h2>Módulo de Docentes</h2>
+                <p>Gestión evaluativa y seguimiento del aprendizaje</p>
+            </div>
+
+            <form id="form-docente-login" onsubmit="procesarLoginDocente(event)">
+                
+                <div class="input-group">
+                    <label for="docente-user">Usuario o Nombre de Cuenta:</label>
+                    <input type="text" id="docente-user" required placeholder="profesor.caguan o admin" autocomplete="username">
+                </div>
+
+                <div class="input-group">
+                    <label for="docente-pass">Contraseña de Seguridad:</label>
+                    <input type="password" id="docente-pass" required placeholder="••••••••" autocomplete="current-password">
+                    <span class="toggle-password" onclick="toggleMostrarPassword()" title="Mostrar/Ocultar contraseña">👁️</span>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; background: var(--primary-blue); font-size: 1rem; padding: 14px;">
+                    🔐 Iniciar Sesión en el Dashboard
+                </button>
+            </form>
+
+            <div class="info-offline-box">
+                ℹ️ <b>Sistema 100% Offline (SQLite Local)</b><br>
+                Cuentas habilitadas de acceso docente:<br>
+                • <b>Docente Investigador:</b> <code>profesor.caguan</code> / <code>SantaFe2026*</code><br>
+                • <b>Administrador:</b> <code>admin</code> / <code>caguán2026</code>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="js/sqlite-engine.js"></script>
+    <script>
+        // Función para visibilidad de contraseña
+        function toggleMostrarPassword() {
+            const passInput = document.getElementById('docente-pass');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+            } else {
+                passInput.type = 'password';
+            }
+        }
+
+        // Lógica de Autenticación
+        function procesarLoginDocente(e) {
+            e.preventDefault();
+            const userVal = document.getElementById('docente-user').value.trim();
+            const passVal = document.getElementById('docente-pass').value.trim();
+
+            // Intenta verificar credenciales en SQLite (vía LocalStorage/sql.js)
+            let autenticado = false;
+
+            if (typeof DB_KEY !== 'undefined') {
+                const data = JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+                if (data.docentes) {
+                    const doc = data.docentes.find(d => d.user === userVal && d.pass === passVal);
+                    if (doc) autenticado = true;
+                }
+            }
+
+            // Validación de credenciales directas y normalizadas
+            const passValNormalizada = passVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            const esProfesorCaguan = (userVal.toLowerCase() === "profesor.caguan" && passVal === "SantaFe2026*");
+            const esAdmin = (userVal.toLowerCase() === "admin" && (passVal === "caguán2026" || passValNormalizada === "caguan2026"));
+
+            if (autenticado || esProfesorCaguan || esAdmin) {
+                // Guarda la sesión en SessionStorage para persistencia activa
+                sessionStorage.setItem('docente_logged', 'true');
+                sessionStorage.setItem('docente_name', userVal.toLowerCase() === "profesor.caguan" ? "Profesor Investigador" : "Administrador");
+                
+                // Redirecciona al Dashboard Principal de Docentes
+                window.location.href = 'docente-dashboard.html';
+            } else {
+                alert('⚠️ Credenciales incorrectas. Verifique el usuario o la contraseña e intente nuevamente.');
+            }
+        }
+    </script>
+</body>
+</html>

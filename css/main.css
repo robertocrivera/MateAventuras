@@ -1,0 +1,555 @@
+/* =======================================================
+   1. VARIABLES GLOBALES Y CONFIGURACIÓN BASE
+   ======================================================= */
+:root {
+    --primary-green: #2e7d32;
+    --primary-blue: #0288d1;
+    --accent-orange: #ff6f00;
+    --accent-red: #d32f2f;
+    --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #e8f5e9 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+    --shadow-sm: 0 4px 10px rgba(0,0,0,0.08);
+    --radius: 16px;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    margin: 0;
+    color: #2c3e50;
+}
+
+/* =======================================================
+   2. UI LOGIN / PORTAL HEADER
+   ======================================================= */
+.app-navbar {
+    background: var(--primary-green);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.main-wrapper {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Tarjetas con Efecto Glassmorphism */
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255,255,255,0.6);
+    margin-bottom: 2rem;
+}
+
+/* =======================================================
+   3. GAMIFICACIÓN: HUD, VIDAS, BARRAS DE PROGRESO
+   ======================================================= */
+.hud-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 0.9rem 1.6rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    border: 2px solid #edf2f7;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+
+.hearts-container { 
+    font-size: 1.6rem; 
+    color: #ef4444; 
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.heart-animated {
+    display: inline-block;
+    animation: heartPulse 1.6s infinite ease-in-out;
+}
+
+.progress-bar-wrap {
+    flex: 1;
+    min-width: 160px;
+    background: #e2e8f0;
+    height: 18px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #06b6d4);
+    width: 0%;
+    transition: width 0.45s ease-out;
+    border-radius: 20px;
+}
+
+/* Indicador de Racha (Streak) */
+.hud-streak {
+    background: linear-gradient(135deg, #fff7ed, #fef3c7);
+    border: 1.5px solid #f59e0b;
+    color: #b45309;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+}
+
+/* Selector de Niveles (Gamificado) */
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.level-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.level-card.basico { border-color: #4caf50; }
+.level-card.intermedio { border-color: #ff9800; }
+.level-card.dificil { border-color: #f44336; }
+
+.level-card:hover { 
+    transform: translateY(-8px); 
+    box-shadow: var(--shadow-lg); 
+}
+
+/* =======================================================
+   4. TARJETAS DE RESPUESTAS 2x2 GAMIFICADAS (DUOLINGO/KAHOOT STYLE)
+   ======================================================= */
+.options-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 1.8rem 0;
+}
+
+@media (max-width: 680px) {
+    .options-grid-2x2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.option-card-3d {
+    background: #ffffff;
+    border: 2.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    top: 0;
+    box-shadow: 0 5px 0 #cbd5e1, 0 8px 15px rgba(0,0,0,0.06);
+    transition: all 0.15s ease-in-out;
+    user-select: none;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.option-card-3d:hover:not(:disabled) {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    top: -3px;
+    box-shadow: 0 8px 0 #93c5fd, 0 12px 20px rgba(59, 130, 246, 0.15);
+}
+
+.option-card-3d:active:not(:disabled) {
+    top: 4px;
+    box-shadow: 0 1px 0 #93c5fd, 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.option-card-3d:disabled {
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+/* Distintivos de Letra A, B, C, D */
+.option-letter-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+}
+
+.option-card-3d:nth-child(1) .option-letter-badge { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.option-card-3d:nth-child(2) .option-letter-badge { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.option-card-3d:nth-child(3) .option-letter-badge { background: linear-gradient(135deg, #10b981, #059669); }
+.option-card-3d:nth-child(4) .option-letter-badge { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+.option-text-content {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* Estados de selección y feedback */
+.option-card-3d.selected-correct {
+    border-color: #10b981 !important;
+    background: #ecfdf5 !important;
+    box-shadow: 0 4px 0 #059669, 0 8px 16px rgba(16, 185, 129, 0.2) !important;
+}
+
+.option-card-3d.selected-incorrect {
+    border-color: #ef4444 !important;
+    background: #fef2f2 !important;
+    box-shadow: 0 4px 0 #b91c1c, 0 8px 16px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Compatibilidad para elementos con clases anteriores */
+.options-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 1.8rem 0;
+}
+@media (max-width: 680px) {
+    .options-container { grid-template-columns: 1fr; }
+}
+
+/* Botón "Salir al Menú" en Cuadro Redondeado */
+.btn-exit-menu {
+    background: linear-gradient(135deg, #ff6f00, #ff8f00);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 25px; /* Bordes suaves/redondeados */
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 111, 0, 0.3);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-exit-menu:hover {
+    background: linear-gradient(135deg, #e65100, #ff6f00);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(255, 111, 0, 0.4);
+}
+
+/* =======================================================
+   5. RETROALIMENTACIÓN Y ESTADOS DE JUEGO
+   ======================================================= */
+.feedback-box {
+    padding: 1.2rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+}
+
+.feedback-box.correct { 
+    background: #e8f5e9; 
+    color: #2e7d32; 
+    border: 2px solid #a5d6a7; 
+}
+
+.feedback-box.incorrect { 
+    background: #ffebee; 
+    color: #c62828; 
+    border: 2px solid #ef9a9a; 
+}
+
+/* Ocultar elementos dinámicos en JS */
+.hidden {
+    display: none !important;
+}
+
+/* =======================================================
+   6. DASHBOARD DOCENTE Y ANIMACIONES
+   ======================================================= */
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.stat-number { 
+    font-size: 2.2rem; 
+    font-weight: bold; 
+    color: var(--primary-blue); 
+}
+
+@keyframes fadeIn { 
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    } 
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    } 
+}
+
+/* Estilo base interactivo del botón */
+.btn-desafio-interactivo {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 14px 28px;
+    
+    /* Forma y Bordes */
+    border: none;
+    border-radius: 50px; /* Forma de píldora/ovalada, muy moderna */
+    
+    /* Colores y Tipografía */
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); /* Degradado verde vibrante */
+    color: #ffffff; /* Texto blanco de alto contraste */
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    
+    /* Sombras para dar efecto 3D */
+    box-shadow: 0 6px 0px #1e8449, 0 10px 15px rgba(0, 0, 0, 0.2);
+    
+    /* Cursor e Interacción */
+    cursor: pointer;
+    position: relative;
+    top: 0;
+    transition: all 0.15s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Efecto al pasar el mouse por encima (Hover) */
+.btn-desafio-interactivo:hover {
+    background: linear-gradient(135deg, #32db7d 0%, #2ecc71 100%);
+    color: #ffffff;
+    top: -2px; /* Se eleva un poco */
+    box-shadow: 0 8px 0px #1e8449, 0 12px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Animación del icono al pasar el mouse */
+.btn-desafio-interactivo:hover span {
+    transform: scale(1.2) rotate(-10deg);
+    transition: transform 0.2s ease;
+}
+
+/* Efecto al hacer clic (Press/Active) */
+.btn-desafio-interactivo:active {
+    top: 4px; /* Simula hundirse como un botón real */
+    box-shadow: 0 2px 0px #1e8449, 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Botón Secundario (Cambiar Estudiante / Rol) --- */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Espaciado y Tamaño */
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    text-decoration: none;
+    
+    /* Forma y Bordes */
+    border-radius: 20px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    
+    /* Colores (Estilo Vidrio / Semi-transparente ideal para barras de navegación) */
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff; /* Ajusta a #2c3e50 si tu fondo de header es claro */
+    backdrop-filter: blur(5px);
+    
+    /* Animación e Interactividad */
+    cursor: pointer;
+    position: relative;
+    top: 0;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-primary {
+  /* Tamaño y Ancho */
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  
+  /* Colores y Texto */
+  color: #ffffff; /* Texto blanco para resaltar sobre el fondo verde */
+  background: var(--primary-green, #2ec4b6); /* Si la variable no existe, usa un verde vibrante */
+  
+  /* Bordes y Formas */
+  border: none;
+  border-radius: 12px; /* Bordes redondeados modernos */
+  
+  /* Sombras y Efecto 3D / Gamer */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15), 0 3px 0 #1b6838; /* Sombra de relieve inferior */
+  cursor: pointer;
+  
+  /* Transición fluida */
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espacio entre el icono y el texto */
+}
+
+/* Efecto Hover (Al pasar el mouse) */
+.btn-primary:hover {
+  filter: brightness(1.1); /* Aumenta el brillo */
+  transform: translateY(-2px); /* Eleva ligeramente el botón */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 4px 0 #1b6838;
+}
+
+/* Efecto Active (Al hacer clic) */
+.btn-primary:active {
+  transform: translateY(2px); /* Simula la pulsación del botón */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 1px 0 #1b6838;
+}
+
+
+
+
+
+/* Animación de la flecha/icono */
+.btn-secondary .btn-icon {
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+/* Efecto al pasar el mouse por encima (Hover) */
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+    color: #e6e6e6;
+    top: -2px; /* Se eleva suavemente */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* La flecha retrocede levemente al pasar el cursor */
+.btn-secondary:hover .btn-icon {
+    transform: translateX(-3px);
+}
+
+/* Efecto al presionar (Click) */
+.btn-secondary:active {
+    top: 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Estilos principales del Footer */
+.footer-sitio {
+  background-color: #1e293b; /* Color de fondo oscuro */
+  color: #f8fafc;            /* Texto claro */
+  //padding: 40px 20px 20px;
+  padding: 15px 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Distribución en columnas */
+.contenedor-footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.columna-creador, 
+.columna-redes {
+  flex: 1 1 250px; /* Responsivo: se adapta a pantallas pequeñas */
+}
+
+/* Estilos de títulos y enlaces */
+.footer-sitio h3 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.footer-sitio a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.footer-sitio a:hover {
+  text-decoration: underline;
+}
+
+.columna-redes ul {
+  list-style: none;
+  padding: 0;
+}
+
+.columna-redes li {
+  margin-bottom: 8px;
+}
+
+/* Sección inferior de copyright */
+.copyright {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid #334155;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}

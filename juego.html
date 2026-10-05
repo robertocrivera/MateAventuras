@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MateAventuras Offline - Desafío Gamificado</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <header class="app-navbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.8rem;"><img src="img/logo.png" width="70" height="75" alt=""/></span>
+            
+			<h2 id="module-title" style="margin: 0; font-size: 1.2rem;">Cargando Módulo...</h2>
+        </div>
+        <a href="estudiante-menu.html" class="btn-secondary" style="text-decoration: none; font-size: 0.9rem;">
+            ⬅ Salir al Menú
+        </a>
+    </header>
+
+    <main class="main-wrapper">
+        
+        <div class="hud-container">
+            <div class="hearts-container" id="hud-vidas" title="Vidas restantes">
+                <span class="heart-animated">❤️</span><span class="heart-animated">❤️</span><span class="heart-animated">❤️</span>
+            </div>
+
+            <div class="progress-bar-wrap" title="Progreso del nivel">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+
+            <div id="hud-streak" class="hud-streak" style="display: none;" title="Racha consecutiva de aciertos">
+                🔥 Racha: <span id="lbl-racha-val">0</span>
+            </div>
+
+            <div id="hud-timer" style="font-weight: 700; font-size: 0.95rem; color: #475569; display: flex; align-items: center; gap: 4px;" title="Tiempo de resolución (Learning Analytics)">
+                ⏱️ <span id="lbl-timer">00:00</span>
+            </div>
+
+            <div id="hud-score" style="font-weight: bold; font-size: 1.1rem; color: var(--primary-green);">
+                Puntos: 0
+            </div>
+        </div>
+
+        <div class="glass-card" id="game-main-card">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span id="level-badge" class="level-card basico" style="padding: 5px 15px; font-weight: bold; font-size: 0.85rem; border-radius: 20px;">
+                    Nivel: Básico
+                </span>
+                <span id="question-counter" style="color: #666; font-size: 0.9rem; font-weight: 600;">
+                    Pregunta 1 de 5
+                </span>
+            </div>
+
+            <h3 id="question-text" style="font-size: 1.25rem; line-height: 1.5; margin-bottom: 1.5rem; color: #1a252f;">
+                Cargando pregunta...
+            </h3>
+
+            <div id="options-container" class="options-grid">
+            </div>
+
+            <div id="feedback-container" class="hidden">
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="js/sqlite-engine.js"></script>
+    <script src="js/juego.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Obtener parámetros de la URL o SessionStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const modulo = urlParams.get('modulo') || sessionStorage.getItem('current_modulo') || 'mercado_suma';
+            let nivel = urlParams.get('nivel') || sessionStorage.getItem('current_nivel') || 'Basico';
+
+            // 2. Formatear y limpiar variables
+            nivel = nivel.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar tildes por seguridad
+            nivel = nivel.charAt(0).toUpperCase() + nivel.slice(1).toLowerCase();
+
+            const titulosModulos = {
+                'pretest': 'Diagnóstico Inicial (Pre-test)',
+                'posttest': 'Evaluación Final (Post-test)',
+                'mercado_suma': 'Mercado Rural',
+                'calculando_cambio': 'Calculando el Cambio',
+                'desafios_caguan': 'Desafíos del Caguán'
+            };
+            const moduloLegible = titulosModulos[modulo] || modulo.replace('_', ' ').toUpperCase();
+
+            // 3. Configurar interfaz e iniciar lógica
+            if (typeof initJuego === 'function') {
+                document.getElementById('module-title').innerText = `${moduloLegible}`;
+                const textoNivel = (modulo === 'pretest' || modulo === 'posttest') ? 'Evaluación' : `Nivel: ${nivel}`;
+                document.getElementById('level-badge').innerText = textoNivel;
+                document.getElementById('level-badge').className = `level-card ${nivel.toLowerCase()}`;
+
+                initJuego(modulo, nivel);
+            }
+        });
+    </script>
+</body>
+</html>

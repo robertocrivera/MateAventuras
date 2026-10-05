@@ -1,0 +1,17 @@
+{
+  "name": "MateAventuras Offline - RED Cartagena 2",
+  "short_name": "MateAventuras",
+  "description": "Recurso Educativo Digital Offline MateAventuras para el fortalecimiento del pensamiento numérico en la I.E.R. Santa Fé del Caguán.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1b3a4b",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "img/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

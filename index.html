@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MateAventuras Offline</title>
+    
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/main.css">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA Service Worker registrado con éxito:', reg.scope))
+                    .catch(err => console.log('Registro de Service Worker omitido (modo archivo o no soportado):', err));
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <header class="app-navbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.8rem;"><img src="img/logo.png" width="70" height="75" alt=""/></span>
+            <div>
+              <h2 style="margin:0; font-size: 1.6rem;">MateAventuras Offline</h2>
+                <p style="margin:0; font-size: 1rem; opacity: 0.9;">I.E.R. Santa Fé del Caguán | Matemáticas 5°</p>
+            </div>
+        </div>
+        <div>
+            <a href="login-docente.html" class="btn-secondary" style="text-decoration: none; font-size: 0.85rem; padding: 8px 14px; background: rgba(255,255,255,0.2); color:white; border-radius:8px;">
+                👨‍🏫 Acceso Docente
+            </a>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+
+        <div class="glass-card" style="max-width: 520px; margin: 3rem auto; text-align: center;">
+            <span style="font-size: 3.5rem;">🎒</span>
+            <h2 style="color: #1a252f; margin-top: 0.5rem;">¡Bienvenidos a MateAventuras!</h2>
+            <p style="color: #555; font-size: 0.95rem; margin-bottom: 2rem;">
+              Ingresa el código de tu Grupo o Computador asignado para comenzar los desafíos del Caguán.
+          </p>
+
+            <form id="form-estudiante-login" onsubmit="iniciarSesionEstudiante(event)">
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label for="student-name" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #333;">
+                        Código de Grupo o Computador:
+                    </label>
+                    <input type="text" id="student-name" required placeholder="Ej. GRP01 o Grupo 1" 
+                           style="width: 100%; padding: 12px; border: 2px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">
+                        Disponibles: <b>GRP01</b> hasta <b>GRP12</b> (o escribe <i>Grupo 1</i> a <i>Grupo 12</i>)
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem; text-align: left;">
+                    <label for="student-avatar" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #333;">
+                        Mascota / Emblema del Grupo:
+                    </label>
+                    <select id="student-avatar" style="width: 100%; padding: 12px; border: 2px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box;">
+                        <option value="🐆 Jaguar">🐆 Jaguar del Caguán (Grupo 1)</option>
+                        <option value="🦜 Guacamaya">🦜 Guacamaya (Grupo 2)</option>
+                        <option value="🐬 Delfín Rosado">🐬 Delfín Rosado (Grupo 3)</option>
+                        <option value="🐊 Caimán">🐊 Caimán del Río (Grupo 4)</option>
+                        <option value="🐒 Mono Tití">🐒 Mono Tití (Grupo 5)</option>
+                        <option value="🦦 Nutria">🦦 Nutria Gigante (Grupo 6)</option>
+                        <option value="🦏 Danta">🦏 Danta Amazónica (Grupo 7)</option>
+                        <option value="🦤 Tucán">🦤 Tucán Pechiblanco (Grupo 8)</option>
+                        <option value="🦥 Oso Palmero">🦥 Oso Palmero (Grupo 9)</option>
+                        <option value="🐟 Pirarucú">🐟 Pirarucú (Grupo 10)</option>
+                        <option value="🦩 Garza">🦩 Garza Real (Grupo 11)</option>
+                        <option value="🦅 Águila Arpía">🦅 Águila Arpía (Grupo 12)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    🎮 ¡Ingresar a Jugar en Equipo!
+			    </button>
+            </form>
+        </div>
+
+    </main>
+
+    <script src="js/sqlite-engine.js"></script>
+    <script>
+        const GRUPOS_INICIALES = [
+            { id: 1, codigo_usuario: 'GRP01', nombre: 'Grupo 1 (2 Estudiantes)', avatar: '🐆 Jaguar' },
+            { id: 2, codigo_usuario: 'GRP02', nombre: 'Grupo 2 (2 Estudiantes)', avatar: '🦜 Guacamaya' },
+            { id: 3, codigo_usuario: 'GRP03', nombre: 'Grupo 3 (2 Estudiantes)', avatar: '🐬 Delfín Rosado' },
+            { id: 4, codigo_usuario: 'GRP04', nombre: 'Grupo 4 (2 Estudiantes)', avatar: '🐊 Caimán' },
+            { id: 5, codigo_usuario: 'GRP05', nombre: 'Grupo 5 (2 Estudiantes)', avatar: '🐒 Mono Tití' },
+            { id: 6, codigo_usuario: 'GRP06', nombre: 'Grupo 6 (2 Estudiantes)', avatar: '🦦 Nutria' },
+            { id: 7, codigo_usuario: 'GRP07', nombre: 'Grupo 7 (2 Estudiantes)', avatar: '🦏 Danta' },
+            { id: 8, codigo_usuario: 'GRP08', nombre: 'Grupo 8 (2 Estudiantes)', avatar: '🦤 Tucán' },
+            { id: 9, codigo_usuario: 'GRP09', nombre: 'Grupo 9 (2 Estudiantes)', avatar: '🦥 Oso Palmero' },
+            { id: 10, codigo_usuario: 'GRP10', nombre: 'Grupo 10 (2 Estudiantes)', avatar: '🐟 Pirarucú' },
+            { id: 11, codigo_usuario: 'GRP11', nombre: 'Grupo 11 (2 Estudiantes)', avatar: '🦩 Garza' },
+            { id: 12, codigo_usuario: 'GRP12', nombre: 'Grupo 12 (1 Estudiante)', avatar: '🦅 Águila Arpía' }
+        ];
+
+        function iniciarSesionEstudiante(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('student-name').value.trim();
+            const avatarElegido = document.getElementById('student-avatar').value;
+
+            if (!inputVal) return;
+
+            // Cargar grupos guardados en la BD local por el docente
+            const DB_KEY_ESTUDIANTES = 'cartagena2_estudiantes';
+            let estudiantes = JSON.parse(localStorage.getItem(DB_KEY_ESTUDIANTES) || '[]');
+            
+            if (estudiantes.length < 12) {
+                estudiantes = GRUPOS_INICIALES;
+                localStorage.setItem(DB_KEY_ESTUDIANTES, JSON.stringify(estudiantes));
+            }
+
+            // Normalización para facilitar el login al estudiante
+            const normalizado = inputVal.toUpperCase().replace(/\s+/g, '');
+            
+            // Búsqueda inteligente: GRP01, GRP1, Grupo 1, Grupo1, o solo número 1..12
+            const grupoEncontrado = estudiantes.find(est => {
+                const c = (est.codigo_usuario || '').toUpperCase().replace(/\s+/g, '');
+                const n = (est.nombre || '').toUpperCase().replace(/\s+/g, '');
+                
+                // Coincidencia directa por código o nombre
+                if (c === normalizado || n.includes(normalizado)) return true;
+                
+                // Si el estudiante escribió solo un número (ej: "1" -> GRP01)
+                const num = parseInt(inputVal, 10);
+                if (!isNaN(num) && num >= 1 && num <= 12) {
+                    const padCode = 'GRP' + String(num).padStart(2, '0');
+                    return c === padCode;
+                }
+
+                // Si escribió "Grupo 1" o "GRP1"
+                if (normalizado.startsWith('GRUPO')) {
+                    const gNum = normalizado.replace('GRUPO', '');
+                    const padCode = 'GRP' + gNum.padStart(2, '0');
+                    return c === padCode;
+                }
+
+                return false;
+            });
+
+            if (grupoEncontrado) {
+                // Guardar la sesión con el código del grupo y avatar
+                sessionStorage.setItem('active_student_code', grupoEncontrado.codigo_usuario);
+                sessionStorage.setItem('active_student_name', grupoEncontrado.nombre);
+                sessionStorage.setItem('active_student_avatar', grupoEncontrado.avatar || avatarElegido);
+
+                window.location.href = 'estudiante-menu.html';
+            } else {
+                alert(`⚠️ El grupo o equipo "${inputVal}" no fue encontrado.\nPuedes ingresar códigos desde GRP01 hasta GRP12 o "Grupo 1" a "Grupo 12".`);
+            }
+        }
+    </script>
+</body>
+	
+
+<footer class="footer-sitio">
+  <div class="copyright">
+      <p style="text-align: center;">&copy; 2026 Institución Educativa Rural Santa Fé del Caguán. Todos los derechos reservados.</p>
+  </div>
+</footer>
+	
+</html>

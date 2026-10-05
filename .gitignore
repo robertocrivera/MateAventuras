@@ -1,0 +1,12 @@
+# Archivos temporales y respaldos
+*.bak
+*copy*.html
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Carpetas de editores
+.vscode/
+.idea/

@@ -1,0 +1,17 @@
+/cartagena2-offline/
+├── css/
+│   └── main.css              # Estilos UI/UX modernos (Glassmorphism, Cards, Responsive)
+├── js/
+│   ├── sqlite-engine.js      # Manejo de SQLite3 offline (sql.js + LocalStorage fallback)
+│   ├── chart.min.js          # Librería offline para gráficos interactivos (Docente)
+│   ├── jspdf.umd.min.js      # Librería offline para generación de reportes PDF
+│   ├── docente.js            # Lógica del Dashboard, filtro individual/grupal y exportaciones
+│   └── juego.js              # Lógica de Gamificación (Niveles, Vidas, Retroalimentación)
+├── db/
+│   └── schema.sql            # Script SQL de creación de tablas e inserción inicial
+├── index.html                # Portal Principal / Selección de Rol con UI moderna
+├── login-docente.html        # Panel de acceso docente estilizado
+├── estudiante-menu.html      # Menú gamificado del alumno (Avatares, Niveles, Progreso)
+├── estudiante-tutorial.html  # Sección "Cómo interactuar" con ejemplos animados
+├── juego.html                # Interfaz de juego gamificado (5 preguntas/nivel, Vidas, Feedback)
+└── docente-dashboard.html    # Dashboard Docente completo con gráficos y exportación PDF/CSV

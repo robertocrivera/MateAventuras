@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MateAventuras Offline - Dashboard Docente</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .modal-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+        .btn-danger { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-danger:hover { background: #c0392b; }
+        .hake-badge {
+            font-size: 0.85rem; font-weight: bold; padding: 3px 8px; border-radius: 10px; background: #e8f5e9;
+            display: inline-block; margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-navbar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" width="70" height="75" alt="Logo"/>
+            <div>
+                <h2 style="margin:0; font-size: 1.4rem;">📊 MateAventuras - Panel de Evaluación de Maestría</h2>
+                <p style="margin:0; font-size: 0.85rem; opacity: 0.9;">I.E.R. Santa Fé del Caguán | Muestra Cuasiexperimental (12 Grupos / 23 Estudiantes)</p>
+            </div>
+        </div>
+        <button onclick="window.location.href='index.html'" class="btn-secondary">Cerrar Sesión</button>
+    </header>
+
+    <main class="main-wrapper">
+        
+        <!-- RESUMEN METODOLÓGICO, CRONOMETRÍA Y FACTOR DE HAKE -->
+        <div class="stats-summary" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-total-alumnos">0</div>
+                <div>Muestra (12 Grupos / 23 Estudiantes)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-promedio-pre" style="color: #0284c7;">0%</div>
+                <div>Línea Base (Pre-test)</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">⏱️ <span id="lbl-tiempo-pre">0s</span> prom.</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-promedio-post" style="color: #7e22ce;">0%</div>
+                <div>Evaluación (Post-test)</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">⏱️ <span id="lbl-tiempo-post">0s</span> prom.</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-ganancia-hake" style="color: #2e7d32;">0.00</div>
+                <div style="font-weight: 600;">Ganancia Hake (g)</div>
+                <div id="lbl-categoria-hake" class="hake-badge">Calculando...</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-reduccion-tiempo" style="color: #ea580c;">0%</div>
+                <div style="font-weight: 600;">Agilidad Mental</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">Reducción en tiempo</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="lbl-total-errores" style="color: #dc2626;">0</div>
+                <div>Errores Totales</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">En toda la muestra</div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <!-- BARRA DE ACCIONES DE GESTIÓN Y EXPORTACIÓN -->
+            <div style="display: flex; gap: 0.8rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button onclick="abrirModalCrearEstudiante()" class="btn-primary" style="background:#2980b9; width:auto;">
+                    ➕ Registrar Grupo
+                </button>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label><b>Filtro:</b></label>
+                    <select id="select-vista" onchange="cambiarVistaReporte(this.value)" style="padding: 8px; border-radius: 6px;">
+                        <option value="grupal">Vista Grupal (12 Grupos / Toda la Muestra)</option>
+                        <option value="individual">Vista Individual por Grupo</option>
+                    </select>
+                </div>
+
+                <div id="wrapper-select-estudiante" class="hidden">
+                    <select id="select-estudiante" onchange="filtrarPorEstudiante(this.value)" style="padding: 8px; border-radius: 6px;">
+                    </select>
+                </div>
+
+                <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button onclick="exportarCSV()" class="btn-primary" style="background:#27ae60; width:auto;" title="Exportar matriz cuantitativa con tiempos y errores para SPSS o Excel">
+                        📥 Exportar CSV (SPSS/Excel)
+                    </button>
+                    <button onclick="exportarPDFVisual()" class="btn-primary" style="background:#c0392b; width:auto;" title="Informe imprimible oficial con tiempos y Hake">
+                        📄 Reporte PDF
+                    </button>
+                    <button onclick="exportarRespaldoJSON()" class="btn-primary" style="background:#8e44ad; width:auto;" title="Guardar respaldo para transferir en USB">
+                        📦 Guardar Copia Salón (.json)
+                    </button>
+                    <button onclick="abrirModalImportarJSON()" class="btn-primary" style="background:#d35400; width:auto;" title="Consolidar datos tomados en otras tablets o equipos">
+                        📥 Consolidar Tablets (.json)
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRÁFICO COMPARATIVO NATIVO -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-top:0; color:#333;">📈 Curva de Aprendizaje Formativa (Pretest vs. Módulos vs. Postest)</h3>
+                <div id="chartDesempeno"></div>
+            </div>
+
+            <!-- TABLA DE CALIFICACIONES, TELEMETRÍA Y GANANCIA POR GRUPO -->
+            <h3>Matriz Detallada de Calificaciones, Latencia y Ganancia por Grupo</h3>
+            <div class="table-responsive">
+                <table class="data-table" style="width:100%; border-collapse:collapse;" border="1">
+                    <thead>
+                        <tr style="background:#2e7d32; color:white;">
+                            <th>Código</th>
+                            <th>Grupo / Equipo (23 Estudiantes)</th>
+                            <th>Mascota</th>
+                            <th>1. Pre-test</th>
+                            <th>2. Mercado</th>
+                            <th>3. Cambio</th>
+                            <th>4. Desafíos</th>
+                            <th>5. Post-test</th>
+                            <th>Ganancia (g)</th>
+                            <th>Errores</th>
+                            <th>Agilidad (Δt)</th>
+                            <th>Estado Dominio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-resultados">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL CREAR GRUPO -->
+    <div id="modal-estudiante" class="modal-bg hidden">
+        <div class="modal-content">
+            <h3 style="margin-top: 0;">Registrar Nuevo Grupo / Equipo de Muestra</h3>
+            <div class="form-group">
+                <label>Código de Grupo (Ej: GRP13):</label>
+                <input type="text" id="txt-codigo-estudiante" placeholder="GRP13">
+            </div>
+            <div class="form-group">
+                <label>Nombre / Integrantes del Grupo:</label>
+                <input type="text" id="txt-nombre-estudiante" placeholder="Ej: Grupo 13 (2 Estudiantes)">
+            </div>
+            <div class="form-group">
+                <label>Mascota / Emblema Regional:</label>
+                <select id="txt-avatar-estudiante">
+                    <option value="🐆 Jaguar">🐆 Jaguar</option>
+                    <option value="🦜 Guacamaya">🦜 Guacamaya</option>
+                    <option value="🐬 Delfín Rosado">🐬 Delfín Rosado</option>
+                    <option value="🐊 Caimán">🐊 Caimán</option>
+                    <option value="🐒 Mono Tití">🐒 Mono Tití</option>
+                    <option value="🦦 Nutria">🦦 Nutria</option>
+                    <option value="🦏 Danta">🦏 Danta</option>
+                    <option value="🦤 Tucán">🦤 Tucán</option>
+                    <option value="🦥 Oso Palmero">🦥 Oso Palmero</option>
+                    <option value="🐟 Pirarucú">🐟 Pirarucú</option>
+                    <option value="🦩 Garza">🦩 Garza</option>
+                    <option value="🦅 Águila Arpía">🦅 Águila Arpía</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+                <button onclick="cerrarModalCrearEstudiante()" class="btn-secondary">Cancelar</button>
+                <button onclick="guardarNuevoEstudiante()" class="btn-primary">Guardar Grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONSOLIDAR / IMPORTAR RESPALDO JSON DE OTRAS TABLETS -->
+    <div id="modal-importar-json" class="modal-bg hidden">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color:#d35400;">📥 Consolidar Datos de Tablets de Aula</h3>
+            <p style="font-size: 0.9rem; color: #555;">
+                Selecciona el archivo <b>.json</b> exportado desde otra tablet o equipo rural. El sistema fusionará automáticamente los estudiantes y sus evaluaciones sin sobreescribir los existentes.
+            </p>
+            <div class="form-group" style="margin-top: 1.2rem;">
+                <input type="file" id="file-import-json" accept=".json" style="padding: 10px; border: 2px dashed #cbd5e0; width: 100%; border-radius: 8px;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+                <button onclick="cerrarModalImportarJSON()" class="btn-secondary">Cancelar</button>
+                <button onclick="procesarArchivoConsolidarJSON()" class="btn-primary" style="background:#d35400;">
+                    Unificar y Cargar Datos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sqlite-engine.js"></script>
+    <script src="js/docente.js"></script>
+</body>
+</html>
