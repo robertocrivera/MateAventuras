@@ -10,3 +10,8 @@ $RECYCLE.BIN/
 # Carpetas de editores
 .vscode/
 .idea/
+
+# Python cache
+__pycache__/
+*.pyc
+
