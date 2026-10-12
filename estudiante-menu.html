@@ -557,138 +557,175 @@
                     <title>Diploma de Honor - ${nombreEstudiante}</title>
                     <style>
                         @page {
-                            size: landscape;
-                            margin: 10mm;
+                            size: letter landscape;
+                            margin: 5mm;
                         }
-                        body {
+                        html, body {
                             margin: 0;
                             padding: 0;
+                            width: 100%;
+                            height: 100%;
                             font-family: 'Georgia', 'Times New Roman', serif;
                             background: #fff;
                             color: #1a252f;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            min-height: 100vh;
+                            box-sizing: border-box;
+                            overflow: hidden;
                         }
                         .certificate-border {
-                            width: 95%;
-                            max-width: 1050px;
-                            border: 12px double #1b4332;
-                            padding: 30px;
+                            width: 100%;
+                            max-width: 265mm;
+                            height: 194mm;
+                            max-height: 194mm;
+                            border: 8px double #1b4332;
+                            padding: 8px;
                             background: #ffffff;
-                            box-shadow: 0 0 25px rgba(0,0,0,0.1);
+                            box-shadow: 0 0 15px rgba(0,0,0,0.08);
                             position: relative;
                             box-sizing: border-box;
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
                         }
                         .inner-border {
                             border: 2px solid #b78103;
-                            padding: 25px 35px;
+                            padding: 10px 22px;
                             text-align: center;
                             position: relative;
+                            box-sizing: border-box;
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
                         }
                         .corner-ornament {
                             position: absolute;
-                            width: 40px;
-                            height: 40px;
+                            width: 28px;
+                            height: 28px;
                             border-color: #b78103;
                             border-style: solid;
                         }
-                        .top-left { top: 6px; left: 6px; border-width: 3px 0 0 3px; }
-                        .top-right { top: 6px; right: 6px; border-width: 3px 3px 0 0; }
-                        .bottom-left { bottom: 6px; left: 6px; border-width: 0 0 3px 3px; }
-                        .bottom-right { bottom: 6px; right: 6px; border-width: 0 3px 3px 0; }
+                        .top-left { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+                        .top-right { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+                        .bottom-left { bottom: 4px; left: 4px; border-width: 0 0 2px 2px; }
+                        .bottom-right { bottom: 4px; right: 4px; border-width: 0 2px 2px 0; }
 
                         .inst-header {
-                            margin-bottom: 10px;
+                            margin-bottom: 4px;
                         }
                         .inst-title {
-                            font-size: 1.1rem;
+                            font-size: 0.8rem;
                             font-weight: bold;
-                            letter-spacing: 2px;
-                            color: #555;
+                            letter-spacing: 1.5px;
+                            color: #475569;
                             text-transform: uppercase;
-                            margin: 0;
+                            margin: 1px 0;
                         }
                         .school-name {
-                            font-size: 1.6rem;
+                            font-size: 1.25rem;
                             font-weight: 900;
                             color: #1b4332;
-                            margin: 4px 0;
-                            letter-spacing: 1px;
+                            margin: 3px 0 1px 0;
+                            letter-spacing: 0.8px;
                         }
                         .project-tag {
-                            font-size: 0.95rem;
+                            font-size: 0.78rem;
                             font-style: italic;
-                            color: #666;
+                            color: #64748b;
                             margin: 0;
                         }
                         .cert-title {
-                            font-size: 2.3rem;
+                            font-size: 1.7rem;
                             color: #b78103;
-                            margin: 20px 0 10px 0;
+                            margin: 6px 0 2px 0;
                             text-transform: uppercase;
                             font-weight: bold;
-                            letter-spacing: 3px;
-                            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+                            letter-spacing: 2.5px;
+                            text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
                         }
                         .cert-body-intro {
-                            font-size: 1.1rem;
+                            font-size: 0.95rem;
                             font-style: italic;
                             color: #444;
-                            margin: 10px 0 5px 0;
+                            margin: 3px 0 1px 0;
                         }
                         .student-name-highlight {
-                            font-size: 2.2rem;
+                            font-size: 1.85rem;
                             color: #1b4332;
                             font-weight: bold;
                             text-decoration: underline;
-                            text-underline-offset: 8px;
-                            margin: 15px 0;
+                            text-underline-offset: 6px;
+                            margin: 6px 0;
                             font-family: 'Segoe UI', Arial, sans-serif;
-                            letter-spacing: 1px;
+                            letter-spacing: 0.5px;
                         }
                         .cert-description {
-                            font-size: 1.05rem;
-                            line-height: 1.6;
-                            color: #333;
-                            max-width: 820px;
-                            margin: 0 auto 25px auto;
+                            font-size: 0.85rem;
+                            line-height: 1.45;
+                            color: #334155;
+                            max-width: 790px;
+                            margin: 0 auto 6px auto;
                         }
                         .meta-bar {
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            font-size: 0.85rem;
-                            color: #777;
-                            border-top: 1px dashed #ccc;
-                            padding-top: 10px;
-                            margin-top: 15px;
+                            font-size: 0.75rem;
+                            color: #64748b;
+                            border-top: 1px dashed #cbd5e1;
+                            padding-top: 4px;
+                            margin-top: 4px;
                         }
                         .signatures-container {
                             display: flex;
                             justify-content: space-around;
-                            margin-top: 40px;
+                            align-items: center;
+                            margin-top: 12px;
                         }
                         .sign-box {
                             text-align: center;
-                            width: 260px;
+                            width: 220px;
                         }
                         .sign-line {
                             border-top: 1px solid #333;
-                            margin-bottom: 5px;
+                            margin-bottom: 3px;
                         }
                         .sign-title {
-                            font-size: 0.9rem;
+                            font-size: 0.82rem;
                             font-weight: bold;
                             color: #222;
                         }
                         .sign-role {
-                            font-size: 0.8rem;
-                            color: #666;
+                            font-size: 0.74rem;
+                            color: #64748b;
                         }
                         @media print {
-                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            html, body {
+                                width: 100% !important;
+                                height: 100% !important;
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                overflow: hidden !important;
+                            }
+                            .certificate-border {
+                                width: 100% !important;
+                                height: 194mm !important;
+                                max-height: 194mm !important;
+                                margin: 0 auto !important;
+                                box-shadow: none !important;
+                                border: 8px double #1b4332 !important;
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                                page-break-after: avoid !important;
+                            }
+                            body {
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
                         }
                     </style>
                 </head>
@@ -701,11 +738,11 @@
                             <div class="corner-ornament bottom-right"></div>
 
                             <div class="inst-header">
-                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px;">
-                                    <img id="diploma-logo-img" src="${logoUrl}" alt="Universidad de Cartagena" style="height: 72px; width: auto; object-fit: contain;">
+                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 4px;">
+                                    <img id="diploma-logo-img" src="${logoUrl}" alt="Universidad de Cartagena" style="height: 54px; width: auto; object-fit: contain;">
                                 </div>
-                                <p class="inst-title" style="font-size: 0.95rem; margin-bottom: 2px;">UNIVERSIDAD DE CARTAGENA • MAESTRÍA EN RECURSOS DIGITALES APLICADOS A LA EDUCACIÓN</p>
-                                <p class="inst-title" style="font-size: 0.85rem; color: #777; margin-bottom: 4px;">República de Colombia • Departamento del Caquetá</p>
+                                <p class="inst-title">UNIVERSIDAD DE CARTAGENA • MAESTRÍA EN RECURSOS DIGITALES APLICADOS A LA EDUCACIÓN</p>
+                                <p class="inst-title" style="font-size: 0.75rem; color: #64748b;">República de Colombia • Departamento del Caquetá</p>
                                 <h1 class="school-name">INSTITUCIÓN EDUCATIVA RURAL SANTA FÉ DEL CAGUÁN</h1>
                                 <p class="project-tag">Proyecto de Investigación de Maestría: Recurso Educativo Digital "MateAventuras Offline"</p>
                             </div>
@@ -727,7 +764,7 @@
                                     <div class="sign-role">Investigación de Maestría</div>
                                 </div>
                                 <div class="sign-box" style="display: flex; align-items: center; justify-content: center;">
-                                    <div style="border: 2px solid #b78103; border-radius: 50%; width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #b78103; text-align: center; padding: 4px;">
+                                    <div style="border: 2px solid #b78103; border-radius: 50%; width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #b78103; text-align: center; padding: 2px;">
                                         SELLO DE HONOR<br>RED 2026
                                     </div>
                                 </div>
