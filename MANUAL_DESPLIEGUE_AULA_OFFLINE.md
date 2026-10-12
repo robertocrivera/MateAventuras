@@ -188,3 +188,4 @@ Dado que cada navegador almacena su progreso de forma independiente y segura:
 ---
 
 *Manual elaborado para la investigación pedagógica en la Institución Educativa Rural Santa Fé del Caguán.*
+

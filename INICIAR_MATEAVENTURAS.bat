@@ -42,3 +42,4 @@ powershell -ExecutionPolicy Bypass -File "%~dp0servidor_aula.ps1"
 echo.
 echo El servidor se ha detenido.
 pause
+

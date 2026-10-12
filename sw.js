@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mateaventuras-caguan-v3';
+const CACHE_NAME = 'mateaventuras-caguan-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

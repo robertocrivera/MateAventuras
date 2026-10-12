@@ -423,7 +423,8 @@ function initJuego(moduloSeleccionado = "mercado_suma", nivelSeleccionado = "Bas
     state.preguntas = listaPreguntas.map(p => barajarOpcionesPregunta(p));
     
     state.indexCurrent = 0;
-    state.vidas = 3;
+    // En la prueba diagnóstica (pre-test) las vidas son ilimitadas para garantizar la recolección completa de datos
+    state.vidas = (state.modulo === 'pretest') ? Infinity : 3;
     state.aciertos = 0;
     state.errores = 0;
     state.puntaje = 0;
@@ -461,15 +462,19 @@ function renderHUD() {
     const qCounter = document.getElementById('question-counter');
 
     if (hudVidas) {
-        let corazonesHTML = '';
-        for (let i = 0; i < 3; i++) {
-            if (i < state.vidas) {
-                corazonesHTML += '<span class="heart-animated" style="margin-right:2px;">❤️</span>';
-            } else {
-                corazonesHTML += '<span style="opacity:0.3; filter:grayscale(1); margin-right:2px;">🖤</span>';
+        if (state.modulo === 'pretest') {
+            hudVidas.innerHTML = '<span style="background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; border: 1px solid #bae6fd; display: inline-flex; align-items: center; gap: 5px;">♾️ Intentos Ilimitados (Diagnóstico)</span>';
+        } else {
+            let corazonesHTML = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < state.vidas) {
+                    corazonesHTML += '<span class="heart-animated" style="margin-right:2px;">❤️</span>';
+                } else {
+                    corazonesHTML += '<span style="opacity:0.3; filter:grayscale(1); margin-right:2px;">🖤</span>';
+                }
             }
+            hudVidas.innerHTML = corazonesHTML;
         }
-        hudVidas.innerHTML = corazonesHTML;
     }
     
     if (progressFill && state.preguntas.length > 0) {
@@ -495,7 +500,8 @@ function renderHUD() {
 }
 
 function loadPregunta() {
-    if (state.indexCurrent >= state.preguntas.length || state.vidas <= 0) {
+    const finPorVidas = (state.modulo !== 'pretest' && state.vidas <= 0);
+    if (state.indexCurrent >= state.preguntas.length || finPorVidas) {
         finalizarJuego();
         return;
     }
@@ -588,7 +594,10 @@ function validarRespuesta(selectedIdx) {
         if (fbContainer) fbContainer.className = "feedback-box correct";
     } else {
         state.errores++;
-        state.vidas--;
+        // En el diagnóstico inicial (pre-test) las vidas no se descuentan
+        if (state.modulo !== 'pretest') {
+            state.vidas--;
+        }
         state.racha = 0;
         playErrorSound();
         if (allButtons[selectedIdx]) {
@@ -646,9 +655,14 @@ function finalizarJuego() {
     const latenciaPromedio = Math.round(state.tiempoTotalSegundos / totalItems);
 
     const mainBox = document.getElementById('game-main-card') || document.getElementById('modulo-juego');
-    let msg = state.vidas > 0 ? "🎉 ¡Felicidades! Has completado el desafío." : "💔 Te has quedado sin vidas. ¡Sigue practicando!";
+    let msg = "";
+    if (state.modulo === 'pretest') {
+        msg = "🎉 ¡Diagnóstico Inicial Completado!";
+    } else {
+        msg = state.vidas > 0 ? "🎉 ¡Felicidades! Has completado el desafío." : "💔 Te has quedado sin vidas. ¡Sigue practicando!";
+    }
     
-    if (state.vidas > 0) {
+    if (state.modulo === 'pretest' || state.vidas > 0) {
         playVictorySound();
     }
     
