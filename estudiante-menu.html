@@ -406,7 +406,10 @@
     <!-- MODAL PARA PERSONALIZAR E IMPRIMIR DIPLOMA -->
     <div id="modal-diploma" class="modal-bg" style="display: none;">
         <div class="modal-card">
-            <span style="font-size: 3.5rem;">🎓</span>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 8px;">
+                <img src="img/logo.png" style="height: 60px; width: auto; object-fit: contain;" alt="Universidad de Cartagena">
+                <span style="font-size: 2.8rem;">🎓</span>
+            </div>
             <h2 style="color: #1a252f; margin: 0.5rem 0;">Diploma de Honor</h2>
             <p style="color: #555; font-size: 0.95rem; margin-bottom: 1.5rem;">
                 Ingresa tu <b>Nombre y Apellidos completos</b> tal como deseas que figuren en tu diploma impreso:
@@ -542,6 +545,7 @@
                 month: 'long',
                 day: 'numeric'
             });
+            const logoUrl = new URL('img/logo.png', window.location.href).href;
 
             const ventanaDiploma = window.open('', '_blank');
             ventanaDiploma.document.write(`
@@ -549,6 +553,7 @@
                 <html lang="es">
                 <head>
                     <meta charset="UTF-8">
+                    <base href="${window.location.href}">
                     <title>Diploma de Honor - ${nombreEstudiante}</title>
                     <style>
                         @page {
@@ -696,7 +701,11 @@
                             <div class="corner-ornament bottom-right"></div>
 
                             <div class="inst-header">
-                                <p class="inst-title">República de Colombia • Departamento del Caquetá</p>
+                                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px;">
+                                    <img id="diploma-logo-img" src="${logoUrl}" alt="Universidad de Cartagena" style="height: 72px; width: auto; object-fit: contain;">
+                                </div>
+                                <p class="inst-title" style="font-size: 0.95rem; margin-bottom: 2px;">UNIVERSIDAD DE CARTAGENA • MAESTRÍA EN RECURSOS DIGITALES APLICADOS A LA EDUCACIÓN</p>
+                                <p class="inst-title" style="font-size: 0.85rem; color: #777; margin-bottom: 4px;">República de Colombia • Departamento del Caquetá</p>
                                 <h1 class="school-name">INSTITUCIÓN EDUCATIVA RURAL SANTA FÉ DEL CAGUÁN</h1>
                                 <p class="project-tag">Proyecto de Investigación de Maestría: Recurso Educativo Digital "MateAventuras Offline"</p>
                             </div>
@@ -740,9 +749,14 @@
 
                     <script>
                         window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 400);
+                            const logoImg = document.getElementById('diploma-logo-img');
+                            if (logoImg && !logoImg.complete) {
+                                logoImg.onload = function() {
+                                    setTimeout(function() { window.print(); }, 300);
+                                };
+                            } else {
+                                setTimeout(function() { window.print(); }, 400);
+                            }
                         };
                     <\/script>
                 </body>
