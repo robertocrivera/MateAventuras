@@ -1,4 +1,4 @@
-# Servidor de Aula Offline en PowerShell (Cero Instalaciones)
+# Servidor de Aula Offline en PowerShell (Cero Instalaciones, Sin restricciones HTTP.SYS)
 # MateAventuras - I.E.R. Santa Fe del Caguan
 
 $Port = 8000
@@ -33,17 +33,6 @@ Write-Host "Presione Ctrl + C para detener el servidor.`n" -ForegroundColor Gray
 # Intentar abrir el navegador del docente
 Start-Process "http://localhost:$Port"
 
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://*:$Port/")
-try {
-    $listener.Start()
-} catch {
-    Write-Warning "Nota: Para escuchar en todas las interfaces sin privilegios de administrador, usando localhost/puerto o ejecute como Administrador si Windows lo restringe."
-    $listener = New-Object System.Net.HttpListener
-    $listener.Prefixes.Add("http://localhost:$Port/")
-    $listener.Start()
-}
-
 $mimeTypes = @{
     ".html" = "text/html; charset=utf-8"
     ".css"  = "text/css; charset=utf-8"
@@ -57,37 +46,69 @@ $mimeTypes = @{
     ".wasm" = "application/wasm"
 }
 
+$listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Any, $Port)
 try {
-    while ($listener.IsListening) {
-        $context = $listener.GetContext()
-        $request = $context.Request
-        $response = $context.Response
+    $listener.Server.SetSocketOption([System.Net.Sockets.SocketOptionLevel]::Socket, [System.Net.Sockets.SocketOptionName]::ReuseAddress, $true)
+} catch {}
+$listener.Start()
 
-        $rawUrl = $request.Url.LocalPath.TrimStart('/')
-        if ([string]::IsNullOrWhiteSpace($rawUrl) -or $rawUrl -eq '/') {
-            $rawUrl = "index.html"
+try {
+    while ($true) {
+        $client = $listener.AcceptTcpClient()
+        $stream = $client.GetStream()
+        
+        try {
+            $buffer = New-Object byte[] 4096
+            $bytesRead = $stream.Read($buffer, 0, $buffer.Length)
+            if ($bytesRead -gt 0) {
+                $requestText = [System.Text.Encoding]::UTF8.GetString($buffer, 0, $bytesRead)
+                $firstLine = ($requestText -split "`r`n")[0]
+                $tokens = $firstLine -split " "
+                
+                if ($tokens.Length -ge 2 -and ($tokens[0] -eq "GET" -or $tokens[0] -eq "HEAD")) {
+                    $rawPath = $tokens[1].Split('?')[0].TrimStart('/')
+                    if ([string]::IsNullOrWhiteSpace($rawPath) -or $rawPath -eq '/') {
+                        $rawPath = "index.html"
+                    }
+                    $rawPath = [System.Uri]::UnescapeDataString($rawPath)
+                    $localPath = Join-Path $BaseFolder $rawPath
+                    
+                    if (Test-Path $localPath -PathType Leaf) {
+                        $ext = [System.IO.Path]::GetExtension($localPath).ToLower()
+                        $mime = if ($mimeTypes.ContainsKey($ext)) { $mimeTypes[$ext] } else { "application/octet-stream" }
+                        $fileBytes = [System.IO.File]::ReadAllBytes($localPath)
+                        
+                        $header = "HTTP/1.1 200 OK`r`n" +
+                                  "Content-Type: $mime`r`n" +
+                                  "Content-Length: $($fileBytes.Length)`r`n" +
+                                  "Access-Control-Allow-Origin: *`r`n" +
+                                  "Cache-Control: no-cache`r`n" +
+                                  "Connection: close`r`n`r`n"
+                        
+                        $headerBytes = [System.Text.Encoding]::UTF8.GetBytes($header)
+                        $stream.Write($headerBytes, 0, $headerBytes.Length)
+                        if ($tokens[0] -eq "GET") {
+                            $stream.Write($fileBytes, 0, $fileBytes.Length)
+                        }
+                    } else {
+                        $msg = [System.Text.Encoding]::UTF8.GetBytes("404 No encontrado: $rawPath")
+                        $header = "HTTP/1.1 404 Not Found`r`n" +
+                                  "Content-Type: text/plain; charset=utf-8`r`n" +
+                                  "Content-Length: $($msg.Length)`r`n" +
+                                  "Connection: close`r`n`r`n"
+                        $headerBytes = [System.Text.Encoding]::UTF8.GetBytes($header)
+                        $stream.Write($headerBytes, 0, $headerBytes.Length)
+                        $stream.Write($msg, 0, $msg.Length)
+                    }
+                }
+            }
+        } catch {
+            # Continuar en caso de desconexion abrupta de cliente
+        } finally {
+            $stream.Close()
+            $client.Close()
         }
-        $rawUrl = [System.Uri]::UnescapeDataString($rawUrl)
-        $localPath = Join-Path $BaseFolder $rawUrl
-
-        if (Test-Path $localPath -PathType Leaf) {
-            $ext = [System.IO.Path]::GetExtension($localPath).ToLower()
-            $mime = if ($mimeTypes.ContainsKey($ext)) { $mimeTypes[$ext] } else { "application/octet-stream" }
-            
-            $bytes = [System.IO.File]::ReadAllBytes($localPath)
-            $response.ContentType = $mime
-            $response.ContentLength64 = $bytes.Length
-            $response.Headers.Add("Access-Control-Allow-Origin", "*")
-            $response.Headers.Add("Cache-Control", "no-cache")
-            $response.OutputStream.Write($bytes, 0, $bytes.Length)
-        } else {
-            $response.StatusCode = 404
-            $msg = [System.Text.Encoding]::UTF8.GetBytes("404 No encontrado: $rawUrl")
-            $response.OutputStream.Write($msg, 0, $msg.Length)
-        }
-        $response.Close()
     }
 } finally {
     $listener.Stop()
 }
-
